@@ -1,60 +1,228 @@
-### Project: Data Pipeline with DVC and MLflow for Machine Learning
-This project demonstrates how to build an end-to-end machine learning pipeline using DVC (Data Version Control) for data and model versioning, and MLflow for experiment tracking. The pipeline focuses on training a Random Forest Classifier on the Pima Indians Diabetes Dataset, with clear stages for data preprocessing, model training, and evaluation.
+# End-to-End MLOps Pipeline with DVC, MLflow, and DagsHub
 
-Key Features of the Project:
-Data Version Control (DVC):
+## Overview
 
-DVC is used to track and version the dataset, models, and pipeline stages, ensuring reproducibility across different environments.
-The pipeline is structured into stages (preprocessing, training, evaluation) that can be automatically re-executed if any dependencies change (e.g., data, scripts, or parameters).
-DVC also allows remote data storage (e.g., DagsHub, S3) for large datasets and models.
-Experiment Tracking with MLflow:
+This project demonstrates an end-to-end Machine Learning Operations (MLOps) pipeline built using DVC, MLflow, and DagsHub. The pipeline automates data preprocessing, model training, and evaluation while ensuring reproducibility, experiment tracking, and version control throughout the machine learning lifecycle.
 
-MLflow is used to track experiment metrics, parameters, and artifacts.
-It logs the hyperparameters of the model (e.g., n_estimators, max_depth) and performance metrics like accuracy.
-MLflow helps compare different runs and models to optimize the machine learning pipeline.
-Pipeline Stages:
-Preprocessing:
+A Random Forest Classifier is trained on the Pima Indians Diabetes Dataset to predict diabetes outcomes. DVC is used for data and model versioning, while MLflow tracks experiments, metrics, parameters, and artifacts.
 
-The preprocess.py script reads the raw dataset (data/raw/data.csv), performs basic preprocessing (such as renaming columns), and outputs the processed data to data/processed/data.csv.
-This stage ensures that data is consistently processed across runs.
-Training:
+---
 
-The train.py script trains a Random Forest Classifier on the preprocessed data.
-The model is saved as models/random_forest.pkl.
-Hyperparameters and the model itself are logged into MLflow for tracking and comparison.
-Evaluation:
+## Architecture
 
-The evaluate.py script loads the trained model and evaluates its performance (accuracy) on the dataset.
-The evaluation metrics are logged to MLflow for tracking.
-Goals:
-Reproducibility: By using DVC, the pipeline ensures that the same data, parameters, and code can reproduce the same results, making the workflow reliable and consistent.
-Experimentation: MLflow allows users to easily track different experiments (with varying hyperparameters) and compare the performance of models.
-Collaboration: DVC and MLflow enable smooth collaboration in a team environment, where different users can work on the same project and track changes seamlessly.
-Use Cases:
-Data Science Teams: Teams can use this project setup to track datasets, models, and experiments in a reproducible and organized manner.
-Machine Learning Research: Researchers can quickly iterate over different experiments, track performance metrics, and manage data versions effectively.
-Technology Stack:
-Python: The core programming language for data processing, model training, and evaluation.
-DVC: For version control of data, models, and pipeline stages.
-MLflow: For logging and tracking experiments, metrics, and model artifacts.
-Scikit-learn: For building and training the Random Forest Classifier.
-This project demonstrates how to manage the lifecycle of a machine learning project, ensuring that data, code, models, and experiments are all tracked, versioned, and reproducible.
+```text
+Raw Dataset
+     │
+     ▼
+Data Preprocessing
+     │
+     ▼
+Model Training
+     │
+     ▼
+Model Evaluation
+     │
+     ▼
+MLflow Tracking
+     │
+     ▼
+DVC Versioning
+     │
+     ▼
+DagsHub Remote Storage
+```
 
-### For Adding Stages
+---
 
+## Features
+
+* End-to-end MLOps workflow
+* Data versioning using DVC
+* Model versioning and reproducibility
+* Experiment tracking with MLflow
+* Automated pipeline execution
+* Hyperparameter tracking
+* Model artifact management
+* DagsHub integration for collaboration
+* Reproducible machine learning workflows
+
+---
+
+## Workflow
+
+### 1. Data Preprocessing
+
+The preprocessing stage reads the raw dataset and performs necessary transformations before generating the processed dataset.
+
+**Input**
+
+* Raw dataset
+
+**Output**
+
+* Processed dataset
+
+### 2. Model Training
+
+A Random Forest Classifier is trained using the processed dataset.
+
+**Tracked Parameters**
+
+* Random State
+* Number of Estimators
+* Maximum Tree Depth
+
+**Generated Artifact**
+
+* Trained Model (`model.pkl`)
+
+### 3. Model Evaluation
+
+The trained model is evaluated and performance metrics are logged to MLflow.
+
+**Tracked Metrics**
+
+* Accuracy Score
+* Experiment Metadata
+* Model Artifacts
+
+---
+
+## Tech Stack
+
+| Category                | Tools         |
+| ----------------------- | ------------- |
+| Programming Language    | Python        |
+| Machine Learning        | Scikit-learn  |
+| Experiment Tracking     | MLflow        |
+| Data & Model Versioning | DVC           |
+| Collaboration Platform  | DagsHub       |
+| Version Control         | Git           |
+| Data Processing         | Pandas, NumPy |
+
+---
+
+## Project Structure
+
+```text
+.
+├── data/
+│   ├── raw/
+│   └── processed/
+├── models/
+├── src/
+│   ├── preprocess.py
+│   ├── train.py
+│   └── evaluate.py
+├── dvc.yaml
+├── dvc.lock
+├── params.yaml
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## Pipeline Stages
+
+### Preprocess Stage
+
+```bash
+python src/preprocess.py
+```
+
+### Train Stage
+
+```bash
+python src/train.py
+```
+
+### Evaluate Stage
+
+```bash
+python src/evaluate.py
+```
+
+### Run Complete Pipeline
+
+```bash
+dvc repro
+```
+
+---
+
+## DVC Pipeline Definition
+
+The following commands were used to create the DVC pipeline stages:
+
+### Preprocess Stage
+
+```bash
 dvc stage add -n preprocess \
     -p preprocess.input,preprocess.output \
     -d src/preprocess.py -d data/raw/data.csv \
     -o data/processed/data.csv \
     python src/preprocess.py
-	
-	
+```
+
+### Train Stage
+
+```bash
 dvc stage add -n train \
     -p train.data,train.model,train.random_state,train.n_estimators,train.max_depth \
     -d src/train.py -d data/raw/data.csv \
     -o models/model.pkl \
     python src/train.py
-	
+```
+
+### Evaluate Stage
+
+```bash
 dvc stage add -n evaluate \
-    -d src/evaluate.py -d models/model.pkl -d data/raw/data.csv \
+    -d src/evaluate.py \
+    -d models/model.pkl \
+    -d data/raw/data.csv \
     python src/evaluate.py
+```
+
+These commands generate the pipeline definition stored in `dvc.yaml`, enabling reproducible and automated execution of the machine learning workflow.
+
+---
+
+## Project Outcomes
+
+* Built a reproducible machine learning workflow
+* Implemented data and model versioning using DVC
+* Tracked experiments and metrics using MLflow
+* Integrated DagsHub for remote collaboration
+* Automated ML pipeline execution through DVC stages
+* Demonstrated MLOps best practices for experiment management
+
+---
+
+## Use Cases
+
+* MLOps Learning Projects
+* Machine Learning Experiment Tracking
+* Model Versioning
+* Reproducible Research
+* Team Collaboration
+* Production-Oriented ML Workflows
+
+---
+
+## Future Improvements
+
+* CI/CD Integration
+* Automated Model Deployment
+* Model Monitoring
+* Data Validation
+* Feature Store Integration
+* Kubernetes-Based Deployment
+
+---
+
+## Author
+
+### Momna Shahid
+**DevOps Engineer | Cloud Engineer | MLOps Engineer**
